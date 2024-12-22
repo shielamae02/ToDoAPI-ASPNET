@@ -9,4 +9,9 @@ public static class Error
         BadRequest,
         InternalServerError
     }
+
+    public const string ValidationError = "Validation failed.";
+    public const string Unauthorized = "Access denied";
+    public const string NotFound = "Resource not found.";
+    public const string AlreadyExists = "Already exists.";
 }
