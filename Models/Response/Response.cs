@@ -20,4 +20,14 @@ public class ApiResponse<T>
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public Dictionary<string, string>? ValidationErrors { get; init; }
 
+    public static ApiResponse<T> SuccessResponse(string message, T? data)
+    {
+        return new ApiResponse<T>
+        {
+            Status = "success",
+            Message = message,
+            Data = data
+        };
+    }
+
 }
