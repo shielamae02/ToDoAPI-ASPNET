@@ -55,4 +55,15 @@ public class TokenUtil
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
+    public static AuthResponseDto GenerateTokens(User user, JWTSettings jwt)
+    {
+        return new AuthResponseDto
+        {
+            Access = GenerateToken(user, jwt, TokenType.ACCESS),
+            Refresh = GenerateToken(user, jwt, TokenType.REFRESH)
+        };
+    }
+
+   
+
 }
