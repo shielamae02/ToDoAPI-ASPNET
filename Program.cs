@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using ToDoAPI_ASPNET.Data;
 using ToDoAPI_ASPNET.Models.Config;
+using ToDoAPI_ASPNET.Repositories.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,5 +106,9 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     services.Configure<JWTSettings>(configuration.GetSection("JWT"));
     services.AddSingleton(resolver =>
         resolver.GetRequiredService<IOptions<JWTSettings>>().Value);
+    #endregion
+
+    #region Repository Configuration
+    services.AddScoped<IAuthRepository, AuthRepository>();
     #endregion
 }
