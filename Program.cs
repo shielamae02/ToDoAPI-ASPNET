@@ -1,19 +1,20 @@
 using Newtonsoft.Json;
 using ToDoAPI_ASPNET.Data;
+using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Converters;
 using ToDoAPI_ASPNET.Models.Config;
 using ToDoAPI_ASPNET.Services.Auth;
 using Microsoft.Extensions.Options;
+using ToDoAPI_ASPNET.Services.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using ToDoAPI_ASPNET.Repositories.Auth;
+using ToDoAPI_ASPNET.Repositories.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
@@ -40,7 +41,6 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 #endregion
 
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -80,6 +80,16 @@ app.Run();
 
 static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
+    #region API Versioning
+    services.AddApiVersioning(options =>
+    {
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ReportApiVersions = true;
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+    });
+    #endregion
+
+
     #region 
     services.AddDbContext<DataContext>(options =>
     {
@@ -112,6 +122,41 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     });
     #endregion
 
+    #region Swagger Docs
+    services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "To Do API",
+            Version = "1.0",
+            Description = ""
+        });
+
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Description = @"JWT Authorization header using the Bearer scheme.\r\n\r\n 
+                          Enter 'Bearer' [space] and then your token in the text input below.
+                          \r\n\r\nExample: 'Bearer 12345abcdef'",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer"
+        });
+
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+            {
+                new OpenApiSecurityScheme {
+                    Reference = new OpenApiReference {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                []
+            }
+        });
+    });
+    #endregion 
+
     #region Validation Configuration 
     services.Configure<ApiBehaviorOptions>(options =>
     {
@@ -127,9 +172,11 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
 
     #region Repository Configuration
     services.AddScoped<IAuthRepository, AuthRepository>();
+    services.AddScoped<IUserRepository, UserRepository>();
     #endregion
 
     #region Services Configuration 
     services.AddScoped<IAuthService, AuthService>();
+    services.AddScoped<IUserService, UserService>();
     #endregion
 }
