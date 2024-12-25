@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using ToDoAPI_ASPNET.Data;
+using ToDoAPI_ASPNET.Models.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,5 +101,9 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     });
     #endregion
 
-    
+    #region JWT Data Binding 
+    services.Configure<JWTSettings>(configuration.GetSection("JWT"));
+    services.AddSingleton(resolver =>
+        resolver.GetRequiredService<IOptions<JWTSettings>>().Value);
+    #endregion
 }
