@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using ToDoAPI_ASPNET.Data;
@@ -61,6 +63,31 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     services.AddDbContext<DataContext>(options =>
     {
         options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+    });
+    #endregion
+
+    #region Authentication
+    var jwt = configuration.GetSection("JWT");
+    var key = jwt["Key"];
+
+    services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwt["Issuer"],
+            ValidAudience = jwt["Audience"],
+            ClockSkew = TimeSpan.Zero,
+            IssuerSigningKey = new SymmetricSecurityKey(Base64UrlEncoder.DecodeBytes(key!))
+        };
     });
     #endregion
 }
