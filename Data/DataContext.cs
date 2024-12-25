@@ -6,8 +6,8 @@ namespace ToDoAPI_ASPNET.Data;
 public partial class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
     public DbSet<User> Users { get; init; }
-    public DbSet<Task> Tasks { get; init; }
     public DbSet<ToDoItem> ToDoItems { get; init; }
+    public DbSet<Token> Tokens { get; init; }
 
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
