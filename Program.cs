@@ -1,15 +1,15 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using ToDoAPI_ASPNET.Data;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Converters;
 using ToDoAPI_ASPNET.Models.Config;
-using ToDoAPI_ASPNET.Repositories.Auth;
 using ToDoAPI_ASPNET.Services.Auth;
+using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using ToDoAPI_ASPNET.Repositories.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +66,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Prevent Microsoft Identity to override claim names
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
