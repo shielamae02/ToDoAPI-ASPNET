@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using ToDoAPI_ASPNET.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,5 +57,10 @@ app.Run();
 
 static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
-
+    #region 
+    services.AddDbContext<DataContext>(options =>
+    {
+        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+    });
+    #endregion
 }
