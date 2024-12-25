@@ -9,6 +9,7 @@ using Newtonsoft.Json.Converters;
 using ToDoAPI_ASPNET.Data;
 using ToDoAPI_ASPNET.Models.Config;
 using ToDoAPI_ASPNET.Repositories.Auth;
+using ToDoAPI_ASPNET.Services.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -110,5 +111,9 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
 
     #region Repository Configuration
     services.AddScoped<IAuthRepository, AuthRepository>();
+    #endregion
+
+    #region Services Configuration 
+    services.AddScoped<IAuthService, AuthService>();
     #endregion
 }
