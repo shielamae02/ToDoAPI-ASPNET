@@ -15,5 +15,44 @@ public class TokenUtil
         REFRESH,
         ACCESS
     }
+    public static string GenerateToken(User user, JWTSettings jwt, TokenType tokenType)
+    {
+        var expires = DateTime.UtcNow;
+
+        var claims = new List<Claim> {
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
+        };
+
+        switch (tokenType)
+        {
+            case TokenType.REFRESH:
+                expires = expires.AddDays(jwt.RefreshTokenExpiry);
+                break;
+
+            case TokenType.ACCESS:
+                expires = expires.AddDays(jwt.AccessTokenExpiry);
+                claims.Add(new(ClaimTypes.Email, user.Email));
+                claims.Add(new(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                break;
+        }
+
+        claims.Add(new(JwtRegisteredClaimNames.Exp,
+        new DateTimeOffset(expires).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64));
+
+        var key = new SymmetricSecurityKey(Base64UrlEncoder.DecodeBytes(jwt.Key));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: jwt.Issuer,
+            audience: jwt.Audience,
+            claims: claims,
+            expires: expires,
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
 
 }
