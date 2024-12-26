@@ -97,7 +97,7 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     });
     #endregion
 
-    #region Authentication
+    #region Authentication Conifguration
     var jwt = configuration.GetSection("JWT");
     var key = jwt["Key"];
 
@@ -129,7 +129,12 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
         {
             Title = "To Do API",
             Version = "1.0",
-            Description = ""
+            Description = "",
+            Contact = new OpenApiContact
+            {
+                Name = "Shiela Mae Lepon",
+                Email = "shiela.mlepon@gmail.com"
+            }
         });
 
         c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
