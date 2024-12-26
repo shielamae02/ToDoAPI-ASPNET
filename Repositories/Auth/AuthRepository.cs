@@ -39,5 +39,9 @@ namespace ToDoAPI_ASPNET.Repositories.Auth
             await context.SaveChangesAsync();
         }
 
+        public async Task<Token?> GetTokenByRefreshAsync(string refreshToken)
+        {
+            return await context.Tokens.SingleOrDefaultAsync(t => t.Value == refreshToken);
+        }
     }
 }
