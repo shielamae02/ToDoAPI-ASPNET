@@ -8,5 +8,5 @@ public interface IAuthRepository
     Task<User?> GetUserByEmailAsync(string email);
     Task<Token?> GetTokenByRefreshAsync(string refreshToken);
     Task AddUserAsync(User user);
-    Task SaveRefreshTokenAsync(User user, string refreshToken, int expiryDays);
+    Task SaveRefreshTokenAsync(User user, string refreshToken, DateTime expiresAt, Token.TokenType type);
 }
