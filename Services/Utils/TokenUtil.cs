@@ -10,14 +10,15 @@ namespace ToDoAPI_ASPNET.Services.Utils;
 
 public class TokenUtil
 {
-    public enum TokenType
+    public static string GenerateToken(User user, JWTSettings jwt, Token.TokenType type)
     {
-        REFRESH,
-        ACCESS
-    }
-    public static string GenerateToken(User user, JWTSettings jwt, TokenType tokenType)
-    {
-        var expires = DateTime.UtcNow;
+        var now = DateTime.Now;
+        var expires = type switch
+        {
+            Token.TokenType.Refresh => now.AddDays(jwt.RefreshTokenExpiry),
+            Token.TokenType.Access => now.AddMinutes(jwt.AccessTokenExpiry),
+            _ => now.AddMinutes(15)
+        };
 
         var claims = new List<Claim> {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
@@ -25,17 +26,10 @@ public class TokenUtil
             new(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };
 
-        switch (tokenType)
+        if (type == Token.TokenType.Access)
         {
-            case TokenType.REFRESH:
-                expires = expires.AddDays(jwt.RefreshTokenExpiry);
-                break;
-
-            case TokenType.ACCESS:
-                expires = expires.AddDays(jwt.AccessTokenExpiry);
-                claims.Add(new(ClaimTypes.Email, user.Email));
-                claims.Add(new(ClaimTypes.NameIdentifier, user.Id.ToString()));
-                break;
+            claims.Add(new(ClaimTypes.Email, user.Email));
+            claims.Add(new(ClaimTypes.NameIdentifier, user.Id.ToString()));
         }
 
         claims.Add(new(JwtRegisteredClaimNames.Exp,
@@ -59,13 +53,14 @@ public class TokenUtil
     {
         return new AuthResponseDto
         {
-            Access = GenerateToken(user, jwt, TokenType.ACCESS),
-            Refresh = GenerateToken(user, jwt, TokenType.REFRESH)
+            Access = GenerateToken(user, jwt, Token.TokenType.Access),
+            Refresh = GenerateToken(user, jwt, Token.TokenType.Refresh)
         };
     }
 
-    public static ClaimsPrincipal? ValidateToken(string token, JWTSettings jwt)
+    public static ClaimsPrincipal? ValidateToken(string token, JWTSettings jwt, IHostEnvironment environment)
     {
+        var isDevelopment = environment.IsDevelopment();
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Base64UrlEncoder.DecodeBytes(jwt.Key);
 
@@ -73,12 +68,12 @@ public class TokenUtil
         {
             var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
+                ValidateIssuer = !isDevelopment,
                 ValidIssuer = jwt.Issuer,
-                ValidateAudience = true,
+                ValidateAudience = !isDevelopment,
                 ValidAudience = jwt.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuerSigningKey = true,
                 ValidateLifetime = true,
             }, out SecurityToken validatedToken);
 
