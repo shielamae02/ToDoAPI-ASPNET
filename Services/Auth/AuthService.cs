@@ -38,12 +38,17 @@ public class AuthService(
 
             await authRepository.AddUserAsync(user);
 
-            var authDto = TokenUtil.GenerateTokens(user, jwt);
-            await authRepository.SaveRefreshTokenAsync(user, authDto.Refresh, jwt.RefreshTokenExpiry);
+            var tokens = TokenUtil.GenerateTokens(user, jwt);
+            await authRepository.SaveRefreshTokenAsync(
+                user,
+                tokens.Refresh,
+                DateTime.UtcNow.AddDays(jwt.RefreshTokenExpiry),
+                Token.TokenType.Refresh
+            );
 
             await transaction.CommitAsync();
 
-            return ApiResponse<AuthResponseDto>.SuccessResponse(Success.IS_AUTHENICATED, authDto);
+            return ApiResponse<AuthResponseDto>.SuccessResponse(Success.IS_AUTHENICATED, tokens);
         }
         catch (Exception ex)
         {
@@ -69,17 +74,22 @@ public class AuthService(
             );
         }
 
-        var authDto = TokenUtil.GenerateTokens(user, jwt);
-        await authRepository.SaveRefreshTokenAsync(user, authDto.Refresh, jwt.RefreshTokenExpiry);
+        var tokens = TokenUtil.GenerateTokens(user, jwt);
+        await authRepository.SaveRefreshTokenAsync(
+            user,
+            tokens.Refresh,
+            DateTime.UtcNow.AddDays(jwt.RefreshTokenExpiry),
+            Token.TokenType.Refresh
+        );
 
-        return ApiResponse<AuthResponseDto>.SuccessResponse(Success.IS_AUTHENICATED, authDto);
+        return ApiResponse<AuthResponseDto>.SuccessResponse(Success.IS_AUTHENICATED, tokens);
     }
 
     public async Task<bool> LogoutAsync(AuthRefreshTokenDto authRefresh)
     {
         var token = await authRepository.GetTokenByRefreshAsync(authRefresh.Token);
 
-        if (token is null || token.isRevoked || token.Expiration < DateTime.UtcNow)
+        if (token is null || token.isRevoked || token.ExpiresAt < DateTime.UtcNow)
             return false;
 
         token.isRevoked = true;
