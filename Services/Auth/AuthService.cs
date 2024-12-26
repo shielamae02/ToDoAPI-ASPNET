@@ -75,4 +75,16 @@ public class AuthService(
         return ApiResponse<AuthResponseDto>.SuccessResponse(Success.IS_AUTHENICATED, authDto);
     }
 
+    public async Task<bool> LogoutAsync(AuthRefreshTokenDto authRefresh)
+    {
+        var token = await authRepository.GetTokenByRefreshAsync(authRefresh.Token);
+
+        if (token is null || token.isRevoked || token.Expiration < DateTime.UtcNow)
+            return false;
+
+        token.isRevoked = true;
+        await context.SaveChangesAsync();
+
+        return true;
+    }
 }
