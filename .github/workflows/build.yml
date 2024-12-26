@@ -1,0 +1,66 @@
+name: Build Project
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - canary
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET core environment
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet run 
+
+  notify:
+    needs: build
+    
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send email notification on failed build 
+        uses: dawidd6/action-send-mail@v3
+
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "GitHub Workflow Failed: Build Project | To Do API"
+          body: |
+            Hello,
+            
+            Your ${{ github.workflow }} has failed. 
+    
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+    
+            Please check the logs here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          to: "shiela.mlepon@gmail.com"
+          from: ${{ secrets.EMAIL_USERNAME }}
+        
+
+
+
+
+      
+  
