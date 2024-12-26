@@ -18,5 +18,11 @@ namespace ToDoAPI_ASPNET.Repositories.Auth
             return await context.Users.SingleOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task AddUserAsync(User user)
+        {
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
+        }
+
     }
 }
