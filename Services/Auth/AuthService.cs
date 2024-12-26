@@ -55,5 +55,24 @@ public class AuthService(
         }
     }
 
+    public async Task<ApiResponse<AuthResponseDto>> LoginAsync(AuthLoginDto authLogin)
+    {
+        var validationErrors = new Dictionary<string, string>();
+
+        var user = await authRepository.GetUserByEmailAsync(authLogin.Email);
+
+        if (user is null || !PasswordUtil.VerifyPassword(user.Password, authLogin.Password))
+        {
+            validationErrors.Add("user", "Invalid credentials.");
+            return ApiResponse<AuthResponseDto>.ErrorResponse(
+                Error.Unauthorized, Error.ErrorType.Unauthorized, validationErrors
+            );
+        }
+
+        var authDto = TokenUtil.GenerateTokens(user, jwt);
+        await authRepository.SaveRefreshTokenAsync(user, authDto.Refresh, jwt.RefreshTokenExpiry);
+
+        return ApiResponse<AuthResponseDto>.SuccessResponse(Success.IS_AUTHENICATED, authDto);
+    }
 
 }
