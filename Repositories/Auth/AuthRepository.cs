@@ -24,14 +24,15 @@ namespace ToDoAPI_ASPNET.Repositories.Auth
             await context.SaveChangesAsync();
         }
 
-        public async Task SaveRefreshTokenAsync(User user, string refreshToken, int expiryDays)
+        public async Task SaveRefreshTokenAsync(User user, string refreshToken, DateTime expiresAt, Token.TokenType type)
         {
             var token = new Token
             {
                 User = user,
                 UserId = user.Id,
                 Value = refreshToken,
-                Expiration = DateTime.UtcNow.AddDays(expiryDays)
+                ExpiresAt = expiresAt,
+                Type = type
             };
 
             user.Tokens.Add(token);
