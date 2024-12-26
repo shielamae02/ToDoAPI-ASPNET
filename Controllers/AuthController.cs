@@ -67,4 +67,28 @@ public class AuthController(
         }
     }
 
+    [HttpPost("logout")]
+    [Consumes("application/json")]
+    public async Task<IActionResult> LogoutUser([FromBody] AuthRefreshTokenDto authRefresh)
+    {
+        try
+        {
+            var response = await authService.LogoutAsync(authRefresh);
+
+            if (!response)
+            {
+                logger.LogWarning("Logout failed.");
+                return BadRequest();
+            }
+
+            logger.LogInformation("User successfully logged out.");
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            logger.LogCritical(ex, "Error in logging out user.");
+            return Problem("An error occurred while processing your request.");
+        }
+    }
+
 }
