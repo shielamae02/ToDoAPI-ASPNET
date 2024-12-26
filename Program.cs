@@ -44,7 +44,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-ConfigureServices(builder.Services, builder.Configuration);
+ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
@@ -78,7 +78,7 @@ app.MapControllers();
 app.Run();
 
 
-static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+static void ConfigureServices(IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
 {
     #region API Versioning
     services.AddApiVersioning(options =>
@@ -90,7 +90,7 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     #endregion
 
 
-    #region 
+    #region SQL Server Configuration
     services.AddDbContext<DataContext>(options =>
     {
         options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
@@ -98,6 +98,8 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     #endregion
 
     #region Authentication Conifguration
+    var IsDevelopment = environment.IsDevelopment();
+
     var jwt = configuration.GetSection("JWT");
     var key = jwt["Key"];
 
@@ -110,14 +112,14 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer = !IsDevelopment,
+            ValidIssuer = jwt["Issuer"],
+            ValidateAudience = !IsDevelopment,
+            ValidAudience = jwt["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Base64UrlEncoder.DecodeBytes(key!)),
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwt["Issuer"],
-            ValidAudience = jwt["Audience"],
             ClockSkew = TimeSpan.Zero,
-            IssuerSigningKey = new SymmetricSecurityKey(Base64UrlEncoder.DecodeBytes(key!))
         };
     });
     #endregion
