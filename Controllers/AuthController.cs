@@ -40,4 +40,31 @@ public class AuthController(
         }
     }
 
+    [HttpPost("login")]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    public async Task<IActionResult> LoginUser([FromBody] AuthLoginDto authLogin)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ControllerUtil.GenerateValidationError<AuthResponseDto>(ModelState));
+
+        try
+        {
+            var response = await authService.LoginAsync(authLogin);
+
+            if (response.Status.Equals("error"))
+            {
+                logger.LogWarning("Login failed for email: {email}.", authLogin.Email);
+                return ControllerUtil.GetActionResultFromError(response);
+            }
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            logger.LogCritical(ex, "Login failed unexpectedly for email: {email}.", authLogin.Email);
+            return Problem("An error occurred while processing your request.");
+        }
+    }
+
 }
