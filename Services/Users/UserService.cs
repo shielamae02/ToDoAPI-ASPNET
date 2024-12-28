@@ -17,6 +17,6 @@ public class UserService(
 
         var userDetails = mapper.Map<UserDetailsDto>(user);
 
-        return ApiResponse<UserDetailsDto>.SuccessResponse(Success.RESOURCE_RETRIVED("User"), userDetails);
+        return ApiResponse<UserDetailsDto>.SuccessResponse(Success.RESOURCE_RETRIEVED("User"), userDetails);
     }
 }
