@@ -77,6 +77,24 @@ public class ToDoItemRepository(
         return true;
     }
 
+    public async Task<bool> UpdateStatusAsync(IEnumerable<int> itemIds, bool newStatus)
+    {
+        var toDoItems = await context.ToDoItems
+            .Where(t => itemIds.Contains(t.Id))
+            .ToListAsync();
+
+        if (toDoItems.Count == 0)
+            return false;
+
+        foreach (var todoItem in toDoItems)
+        {
+            todoItem.IsComplete = newStatus;
+        }
+
+        await context.SaveChangesAsync();
+        return true;
+    }
+
 
 
 
