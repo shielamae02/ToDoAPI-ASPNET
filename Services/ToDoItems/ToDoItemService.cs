@@ -105,6 +105,39 @@ public class ToDoItemService(
         );
     }
 
-   
+    public async Task<ApiResponse<object>> UpdateToDoItemsStatusAsync(int userId, ToDoItemUpdateStatusDto toDoItem)
+    {
+        var validationErrors = new Dictionary<string, string>();
+
+        foreach (var itemId in toDoItem.ItemIds)
+        {
+            var item = await toDoItemRepository.GetByIdAsync(itemId);
+            if (item is null || item.UserId != userId)
+            {
+                validationErrors.Add("toDoItem", $"Item with id {itemId} does not exist.");
+                return ApiResponse<object>.ErrorResponse(
+                    Error.NotFound,
+                    Error.ErrorType.NotFound,
+                    validationErrors
+                );
+            }
+        }
+
+        var isUpdateSuccess = await toDoItemRepository.UpdateStatusAsync(toDoItem.ItemIds, toDoItem.NewStatus);
+        if (!isUpdateSuccess)
+            return ApiResponse<object>.ErrorResponse(
+                Error.OperationFailed,
+                Error.ErrorType.InternalServerError
+            );
+
+        return ApiResponse<object>.SuccessResponse(
+            Success.RESOURCE_UPDATED("ToDoItems"),
+            null
+        );
+    }
+
+
+
+
 
 }
