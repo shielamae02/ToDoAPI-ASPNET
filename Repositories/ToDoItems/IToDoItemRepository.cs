@@ -12,6 +12,5 @@ public interface IToDoItemRepository
     Task<bool> UpdateRangeAsync(IEnumerable<ToDoItem> toDoItems);
     Task<bool> DeleteAsync(int id);
     Task<bool> DeleteRangeAsync(IEnumerable<int> ids);
-    hello
 }
 
