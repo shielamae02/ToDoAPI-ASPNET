@@ -44,6 +44,7 @@ public class ToDoItemController(
         }
     }
 
+
     [HttpGet("{id:int}")]
     [Produces("application/json")]
     public async Task<IActionResult> GetToDoItemById([FromRoute] int id)
@@ -69,6 +70,7 @@ public class ToDoItemController(
             return Problem("An unexpected error occurred while retrieving the to-do item.");
         }
     }
+
 
     [HttpGet]
     [Produces("application/json")]
@@ -96,6 +98,7 @@ public class ToDoItemController(
             return Problem("An unexpected error occurred while retrieving the to-do items.");
         }
     }
+
 
     [HttpPut("{id:int}")]
     [Consumes("application/json")]
@@ -125,6 +128,7 @@ public class ToDoItemController(
         }
     }
 
+
     [HttpPatch]
     [Consumes("application/json")]
     public async Task<IActionResult> UpdateToDoItemsStatus([FromBody] ToDoItemUpdateStatusDto toDoItem)
@@ -151,6 +155,7 @@ public class ToDoItemController(
         }
     }
 
+
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteToDoItem([FromRoute] int id)
     {
@@ -174,8 +179,26 @@ public class ToDoItemController(
     }
 
 
+    [HttpDelete]
+    [Consumes("application/json")]
+    public async Task<IActionResult> DeleteToDoItems([FromBody] IList<int> itemIds)
+    {
+        try
+        {
+            var userId = ControllerUtil.GetUserId(User);
+            if (userId == -1)
+                return Unauthorized(new { message = Error.Unauthorized });
 
+            var response = await toDoItemService.DeleteToDoItemsAsync(userId, itemIds);
+            if (response.Status.Equals("error"))
+                return ControllerUtil.GetActionResultFromError(response);
 
-
-
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while deleting the to-do items.");
+            return Problem("An unexpected error occurred while deleting the to-do items.");
+        }
+    }
 }
