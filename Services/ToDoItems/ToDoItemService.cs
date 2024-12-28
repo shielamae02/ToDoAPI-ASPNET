@@ -43,6 +43,18 @@ public class ToDoItemService(
        );
     }
 
-    
+    public async Task<ApiResponse<IEnumerable<ToDoItemDto>>> GetAllItemsAsync(int userId)
+    {
+        var toDoItems = await toDoItemRepository.GetAllAsync(userId);
+
+        var result = toDoItems.Select(mapper.Map<ToDoItemDto>).ToList();
+
+        return ApiResponse<IEnumerable<ToDoItemDto>>.SuccessResponse(
+           Success.RESOURCE_RETRIEVED("ToDoItems"),
+           result
+       );
+    }
+
+
 
 }
