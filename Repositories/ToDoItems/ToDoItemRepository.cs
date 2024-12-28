@@ -30,5 +30,21 @@ public class ToDoItemRepository(
             .ToListAsync();
     }
 
+    public async Task<bool> UpdateAsync(ToDoItem toDoItem)
+    {
+        var existingItem = await GetByIdAsync(toDoItem.Id);
+        if (existingItem is null)
+            return false;
+
+        existingItem.Title = toDoItem.Title;
+        existingItem.Description = toDoItem.Description;
+        existingItem.IsComplete = toDoItem.IsComplete;
+        existingItem.DueDate = toDoItem.DueDate;
+
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+
 
 }
