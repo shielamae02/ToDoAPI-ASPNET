@@ -95,7 +95,18 @@ public class ToDoItemRepository(
         return true;
     }
 
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var toDoItem = await GetByIdAsync(id);
+        if (toDoItem == null)
+            return false;
 
+        context.ToDoItems.Remove(toDoItem);
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+   
 
 
 }
