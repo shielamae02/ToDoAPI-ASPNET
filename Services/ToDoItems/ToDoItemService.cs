@@ -55,6 +55,32 @@ public class ToDoItemService(
        );
     }
 
+    public async Task<ApiResponse<ToDoItemDto>> UpdateToDoItemAsync(int userId, int itemId, ToDoItemUpdateDto toDoItem)
+    {
+        var toDoItemEntity = await toDoItemRepository.GetByIdAsync(itemId);
+        if (toDoItemEntity is null || toDoItemEntity.UserId != userId)
+            return ApiResponse<ToDoItemDto>.ErrorResponse(
+                Error.NotFound,
+                Error.ErrorType.NotFound,
+                new Dictionary<string, string> { { "toDoItem", $"Item with id {itemId} does not exist." } }
+            );
+
+        mapper.Map(toDoItem, toDoItemEntity);
+
+        var isUpdateSuccess = await toDoItemRepository.UpdateAsync(toDoItemEntity);
+        if (!isUpdateSuccess)
+            return ApiResponse<ToDoItemDto>.ErrorResponse(
+                Error.OperationFailed,
+                Error.ErrorType.InternalServerError
+            );
+
+
+        return ApiResponse<ToDoItemDto>.SuccessResponse(
+            Success.RESOURCE_UPDATED("ToDoItem"),
+            mapper.Map<ToDoItemDto>(toDoItemEntity)
+        );
+    }
+
 
 
 }
