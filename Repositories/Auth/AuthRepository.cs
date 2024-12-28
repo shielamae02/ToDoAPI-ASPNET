@@ -8,9 +8,13 @@ namespace ToDoAPI_ASPNET.Repositories.Auth
         DataContext context
     ) : IAuthRepository
     {
-        public async Task<bool> UserExistsByEmailAsync(string email)
+        public async Task<bool> IsUserExistsByCredentialAsync(
+            string email,
+            string? username = null)
         {
-            return await context.Users.AnyAsync(u => u.Email == email);
+            return await context.Users
+                .Where(u => u.Email == email || u.Username == username)
+                .AnyAsync();
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)
