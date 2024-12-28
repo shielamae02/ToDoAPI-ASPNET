@@ -14,5 +14,35 @@ public class ToDoItemController(
     ILogger<ToDoItemController> logger
 ) : ControllerBase
 {
-   
+    [HttpPost]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    public async Task<IActionResult> CreateToDoItem([FromBody] ToDoItemCreateDto toDoItem)
+    {
+        try
+        {
+            var userId = ControllerUtil.GetUserId(User);
+
+            if (userId == -1)
+                return Unauthorized(new { message = Error.Unauthorized });
+
+            if (!ModelState.IsValid)
+                return BadRequest(ControllerUtil.GenerateValidationError<object>(ModelState));
+
+            var response = await toDoItemService.CreateItemAsync(userId, toDoItem);
+            if (response.Status.Equals("error"))
+            {
+                return ControllerUtil.GetActionResultFromError(response);
+            }
+
+            return StatusCode(StatusCodes.Status201Created, response);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while creating the to-do item.");
+            return Problem("An unexpected error occurred while creating the to-do item.");
+        }
+    }
+
+
 }
