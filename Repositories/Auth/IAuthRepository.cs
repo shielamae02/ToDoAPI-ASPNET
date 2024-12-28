@@ -4,7 +4,7 @@ namespace ToDoAPI_ASPNET.Repositories.Auth;
 
 public interface IAuthRepository
 {
-    Task<bool> UserExistsByEmailAsync(string email);
+    Task<bool> IsUserExistsByCredentialAsync(string email, string? username = null);
     Task<User?> GetUserByEmailAsync(string email);
     Task<Token?> GetTokenByRefreshAsync(string refreshToken);
     Task AddUserAsync(User user);
