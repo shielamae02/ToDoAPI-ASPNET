@@ -81,6 +81,30 @@ public class ToDoItemService(
         );
     }
 
+    public async Task<ApiResponse<object>> DeleteToDoItemAsync(int userId, int itemId)
+    {
+        var toDoItem = await toDoItemRepository.GetByIdAsync(itemId);
+        if (toDoItem is null || toDoItem.UserId != userId)
+            return ApiResponse<object>.ErrorResponse(
+                Error.NotFound,
+                Error.ErrorType.NotFound,
+                new Dictionary<string, string> { { "toDoItem", $"Item with id {itemId} does not exist." } }
+            );
 
+
+        var isDeleteSuccess = await toDoItemRepository.DeleteAsync(itemId);
+        if (!isDeleteSuccess)
+            return ApiResponse<object>.ErrorResponse(
+                Error.OperationFailed,
+                Error.ErrorType.InternalServerError
+            );
+
+        return ApiResponse<object>.SuccessResponse(
+            Success.RESOURCE_DELETED("ToDoItem"),
+            null
+        );
+    }
+
+   
 
 }
