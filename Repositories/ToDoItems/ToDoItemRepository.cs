@@ -9,5 +9,13 @@ public class ToDoItemRepository(
     DataContext context
     ) : IToDoItemRepository
 {
+    public async Task<ToDoItem> CreateAsync(ToDoItem toDoItem)
+    {
+        await context.AddAsync(toDoItem);
+        await context.SaveChangesAsync();
 
+        return toDoItem;
+    }
+
+    
 }
