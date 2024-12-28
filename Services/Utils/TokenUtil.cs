@@ -16,7 +16,7 @@ public class TokenUtil
         var expires = type switch
         {
             Token.TokenType.Refresh => now.AddDays(jwt.RefreshTokenExpiry),
-            Token.TokenType.Access => now.AddMinutes(jwt.AccessTokenExpiry),
+            Token.TokenType.Access => now.AddDays(jwt.AccessTokenExpiry),
             _ => now.AddMinutes(15)
         };
 
