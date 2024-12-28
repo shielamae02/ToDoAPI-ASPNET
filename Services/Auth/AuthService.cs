@@ -22,9 +22,9 @@ public class AuthService(
     {
         var validationErrors = new Dictionary<string, string>();
 
-        if (await authRepository.UserExistsByEmailAsync(authRegister.Email))
+        if (await authRepository.IsUserExistsByCredentialAsync(authRegister.Email, authRegister.Username))
         {
-            validationErrors.Add("emai", "Invalid email address.");
+            validationErrors.Add("credentials", "Invalid email address or username.");
             return ApiResponse<AuthResponseDto>.ErrorResponse(
                 Error.ValidationError, Error.ErrorType.ValidationError, validationErrors
             );
