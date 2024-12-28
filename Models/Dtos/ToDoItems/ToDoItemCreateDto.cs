@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace ToDoAPI_ASPNET.Models.Dtos.ToDoItems;
@@ -12,7 +13,8 @@ public class ToDoItemCreateDto
     [StringLength(100, MinimumLength = 2, ErrorMessage = "Description must be between 2 and 100 characters.")]
     public string Description { get; init; } = string.Empty;
 
-    public bool isComplete { get; init; } = false;
+    [DefaultValue(false)]
+    public bool IsComplete { get; init; } = false;
 
     public DateTime DueDate { get; init; }
 }
