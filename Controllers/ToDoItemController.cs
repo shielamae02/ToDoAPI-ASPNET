@@ -70,6 +70,34 @@ public class ToDoItemController(
         }
     }
 
+    [HttpGet]
+    [Produces("application/json")]
+    public async Task<IActionResult> GetAllToDoItems()
+    {
+        try
+        {
+            var userId = ControllerUtil.GetUserId(User);
 
-    
+            if (userId == -1)
+                return Unauthorized(new { message = Error.Unauthorized });
+
+
+            var response = await toDoItemService.GetAllItemsAsync(userId);
+            if (response.Status.Equals("error"))
+            {
+                return ControllerUtil.GetActionResultFromError(response);
+            }
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while retrieving the to-do items.");
+            return Problem("An unexpected error occurred while retrieving the to-do items.");
+        }
+    }
+
+
+   
+
 }
