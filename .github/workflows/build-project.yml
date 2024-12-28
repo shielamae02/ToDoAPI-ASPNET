@@ -51,7 +51,7 @@ jobs:
             Your ${{ github.workflow }} has failed. 
     
             Repository: ${{ github.repository }}
-            Branch: ${{ github.ref }}
+            Branch: ${{ github.ref_name }}
             Commit: ${{ github.sha }}
     
             Please check the logs here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
