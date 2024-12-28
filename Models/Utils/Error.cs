@@ -14,6 +14,7 @@ public static class Error
     public const string Unauthorized = "Access denied";
     public const string NotFound = "Resource not found.";
     public const string AlreadyExists = "Already exists.";
+    public const string OperationFailed = "Operation has failed.";
 
     public static string FIELD_IS_REQUIRED(string field)
     {

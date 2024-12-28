@@ -8,6 +8,8 @@ public class UserRepository(DataContext context) : IUserRepository
 {
     public async Task<User?> GetByIdAsync(int id)
     {
-        return await context.Users.SingleOrDefaultAsync(u => u.Id == id);
+        return await context.Users
+            .Include(u => u.ToDoItems)
+            .FirstOrDefaultAsync(u => u.Id == id);
     }
 }

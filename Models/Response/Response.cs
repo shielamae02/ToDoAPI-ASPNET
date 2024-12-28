@@ -33,7 +33,7 @@ public class ApiResponse<T>
     public static ApiResponse<T> ErrorResponse(
         string message,
         ErrorType? errorType,
-        Dictionary<string, string>? validationErrors)
+        Dictionary<string, string>? validationErrors = null)
     {
         return new ApiResponse<T>
         {

@@ -4,7 +4,7 @@ public static class Success
 {
     public const string IS_AUTHENICATED = "User has been successfully authenticated.";
 
-    public static string RESOURCE_RETRIVED(string resource)
+    public static string RESOURCE_RETRIEVED(string resource)
     {
         return $"{resource} has been successfully retrieved.";
     }

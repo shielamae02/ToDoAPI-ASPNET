@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using ToDoAPI_ASPNET.Repositories.Auth;
 using ToDoAPI_ASPNET.Repositories.Users;
+using ToDoAPI_ASPNET.Services.ToDoItems;
+using ToDoAPI_ASPNET.Repositories.ToDoItems;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -177,13 +179,19 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
         resolver.GetRequiredService<IOptions<JWTSettings>>().Value);
     #endregion
 
+    #region Logging Configuration
+    services.AddLogging();
+    #endregion
+
     #region Repository Configuration
     services.AddScoped<IAuthRepository, AuthRepository>();
     services.AddScoped<IUserRepository, UserRepository>();
+    services.AddScoped<IToDoItemRepository, ToDoItemRepository>();
     #endregion
 
     #region Services Configuration 
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IUserService, UserService>();
+    services.AddScoped<IToDoItemService, ToDoItemService>();
     #endregion
 }
