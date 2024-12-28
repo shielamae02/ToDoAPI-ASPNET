@@ -14,6 +14,18 @@ public class ToDoItemService(
     IMapper mapper
 ) : IToDoItemService
 {
-   
+    public async Task<ApiResponse<ToDoItemDto>> CreateItemAsync(int userId, ToDoItemCreateDto toDoItem)
+    {
+        var newToDoItem = mapper.Map<ToDoItem>(toDoItem);
+        newToDoItem.UserId = userId;
+
+        await toDoItemRepository.CreateAsync(newToDoItem);
+
+        return ApiResponse<ToDoItemDto>.SuccessResponse(
+            Success.RESOURCE_CREATED("ToDoItem"),
+            mapper.Map<ToDoItemDto>(newToDoItem)
+        );
+    }
+
 
 }
