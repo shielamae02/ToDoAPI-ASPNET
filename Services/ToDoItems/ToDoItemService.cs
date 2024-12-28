@@ -136,8 +136,45 @@ public class ToDoItemService(
         );
     }
 
+    public async Task<ApiResponse<object>> DeleteToDoItemsAsync(int userId, IList<int> itemIds)
+    {
+        var validationErrors = new Dictionary<string, string>();
 
+        if (itemIds.Count == 0)
+        {
+            validationErrors.Add("itemIds", "Item Ids must contain at least one value.");
+            return ApiResponse<object>.ErrorResponse(
+                Error.ValidationError,
+                Error.ErrorType.ValidationError,
+                validationErrors
+            );
+        }
 
+        foreach (var itemId in itemIds)
+        {
+            var toDoItem = await toDoItemRepository.GetByIdAsync(itemId);
+            if (toDoItem is null || toDoItem.UserId != userId)
+            {
+                validationErrors.Add("toDoItem", $"Item with id {itemId} does not exist.");
+                return ApiResponse<object>.ErrorResponse(
+                    Error.NotFound,
+                    Error.ErrorType.NotFound,
+                    validationErrors
+                );
+            }
 
+        }
 
+        var isDeleteSuccess = await toDoItemRepository.DeleteRangeAsync(itemIds);
+        if (!isDeleteSuccess)
+            return ApiResponse<object>.ErrorResponse(
+                Error.OperationFailed,
+                Error.ErrorType.InternalServerError
+            );
+
+        return ApiResponse<object>.SuccessResponse(
+            Success.RESOURCE_DELETED("ToDoItems"),
+            null
+        );
+    }
 }
