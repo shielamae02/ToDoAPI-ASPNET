@@ -23,6 +23,12 @@ public class ToDoItemRepository(
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
-  
-    
+    public async Task<IEnumerable<ToDoItem>> GetAllAsync(int userId)
+    {
+        return await context.ToDoItems
+            .Where(t => t.UserId == userId)
+            .ToListAsync();
+    }
+
+
 }
