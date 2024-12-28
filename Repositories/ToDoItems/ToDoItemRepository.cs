@@ -17,5 +17,12 @@ public class ToDoItemRepository(
         return toDoItem;
     }
 
+    public async Task<ToDoItem?> GetByIdAsync(int id)
+    {
+        return await context.ToDoItems
+            .FirstOrDefaultAsync(t => t.Id == id);
+    }
+
+  
     
 }
