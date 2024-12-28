@@ -151,6 +151,28 @@ public class ToDoItemController(
         }
     }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteToDoItem([FromRoute] int id)
+    {
+        try
+        {
+            var userId = ControllerUtil.GetUserId(User);
+            if (userId == -1)
+                return Unauthorized(new { message = Error.Unauthorized });
+
+            var response = await toDoItemService.DeleteToDoItemAsync(userId, id);
+            if (response.Status.Equals("error"))
+                return ControllerUtil.GetActionResultFromError(response);
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while deleting the to-do item.");
+            return Problem("An unexpected error occurred while deleting the to-do item.");
+        }
+    }
+
 
 
 
