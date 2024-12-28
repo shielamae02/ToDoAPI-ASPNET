@@ -106,7 +106,17 @@ public class ToDoItemRepository(
         return true;
     }
 
-   
+    public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids)
+    {
+        var toDoItems = await context.ToDoItems
+            .Where(t => ids.Contains(t.Id))
+            .ToListAsync();
 
+        if (toDoItems.Count == 0)
+            return false;
 
+        context.ToDoItems.RemoveRange(toDoItems);
+        await context.SaveChangesAsync();
+        return true;
+    }
 }
