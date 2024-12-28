@@ -125,7 +125,34 @@ public class ToDoItemController(
         }
     }
 
-    
+    [HttpPatch]
+    [Consumes("application/json")]
+    public async Task<IActionResult> UpdateToDoItemsStatus([FromBody] ToDoItemUpdateStatusDto toDoItem)
+    {
+        try
+        {
+            var userId = ControllerUtil.GetUserId(User);
+            if (userId == -1)
+                return Unauthorized(new { message = Error.Unauthorized });
+
+            if (!ModelState.IsValid)
+                return BadRequest(ControllerUtil.GenerateValidationError<object>(ModelState));
+
+            var response = await toDoItemService.UpdateToDoItemsStatusAsync(userId, toDoItem);
+            if (response.Status.Equals("error"))
+                return ControllerUtil.GetActionResultFromError(response);
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while updating the status of the to-do item.");
+            return Problem("An unexpected error occurred while updating status of the to-do item.");
+        }
+    }
+
+
+
 
 
 
