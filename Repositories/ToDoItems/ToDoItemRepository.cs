@@ -45,6 +45,39 @@ public class ToDoItemRepository(
         return true;
     }
 
+    public async Task<bool> UpdateRangeAsync(IEnumerable<ToDoItem> toDoItems)
+    {
+        if (toDoItems is null || !toDoItems.Any())
+            return false;
+
+        var itemIds = toDoItems.Select(t => t.Id).ToList();
+
+        var existingItems = await context.ToDoItems
+            .Where(t => itemIds.Contains(t.Id))
+            .ToListAsync();
+
+        if (existingItems.Count == 0)
+            return false;
+
+
+        foreach (var existingItem in existingItems)
+        {
+            var updateItem = toDoItems.FirstOrDefault(t => t.Id == existingItem.Id);
+
+            if (updateItem != null)
+            {
+                existingItem.Title = updateItem.Title;
+                existingItem.Description = updateItem.Description;
+                existingItem.IsComplete = updateItem.IsComplete;
+                existingItem.DueDate = updateItem.DueDate;
+            }
+        }
+
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+
 
 
 }
