@@ -1,0 +1,43 @@
+name: ToDoAPI
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql
+    hostname: sql
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "MyStrongPass123"
+      MSSQL_PID: "Evaluation"
+    networks:
+      - app-network
+    restart: always
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__DefaultConnection: "${DEFAULT_CONNECTION}"
+
+      JWT__Key: "${JWT_SECRET}"
+      JWT__Issuer: "${JWT_ISSUER}"
+      JWT__Audience: "${JWT_AUDIENCE}"
+      JWT_AccessTokenExpiry: "${JWT_ACCESSEXPIRY}"
+      JWT_RefreshTokenExpiry: "${JWT_REFRESHEXPIRY}"
+    depends_on:
+      - db
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
